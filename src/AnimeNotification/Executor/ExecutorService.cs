@@ -31,7 +31,7 @@ namespace AnimeNotification.Executor
             foreach (var published in latestPublished)
             {
                 var anime = await _repository.GetByNameAsync(published.AnimeTitle);
-                 var isNewAnime = false;
+                var isNewAnime = false;
 
                 if (anime is null)
                 {
@@ -40,7 +40,7 @@ namespace AnimeNotification.Executor
                 }
                 else
                 {
-                    anime = await _repository.UpdateEposideAsync(published.AnimeTitle, published.AnimeEpisode);
+                    await _repository.UpdateEposideAsync(published.AnimeTitle, published.AnimeEpisode);
                 }
 
 
@@ -48,7 +48,7 @@ namespace AnimeNotification.Executor
                     continue;
 
 
-                await _publisher.Publish($"Capítulo {anime.Episode} de {anime.Title} disponible.");
+                await _publisher.Publish($"Capítulo {published.AnimeEpisode} de {published.AnimeTitle} disponible.");
             }
         }
     }

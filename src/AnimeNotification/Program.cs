@@ -40,9 +40,6 @@ namespace AnimeNotification
             });
 
             services.AddHttpClient();
-            services
-                .AddSingleton(configurationRoot)
-                .AddOptions();
 
             services.AddScoped<IAnalyzeService, AnimeFlvAnalyzerService>();
             services.AddScoped<IAnimeRepository, AnimeRepository>();
