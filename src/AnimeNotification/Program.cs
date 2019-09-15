@@ -1,6 +1,7 @@
 ﻿using AnimeNotification.Analyzers;
 using AnimeNotification.EntityFrameworkCore.Sqlite;
-using AnimeNotification.Services;
+using AnimeNotification.Executor;
+using AnimeNotification.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,8 +41,8 @@ namespace AnimeNotification
                 .AddOptions();
 
             services.AddScoped<IAnalyzeService, AnimeFlvAnalyzerService>();
-            //services.AddScoped<AnimeNotificationDbContext>();
-            services.AddScoped<AnimeService>();
+            services.AddScoped<IAnimeRepository, AnimeRepository>();
+            services.AddScoped<ExecutorService>();
 
             var serviceProvider = services.BuildServiceProvider();
             return serviceProvider;
@@ -52,9 +53,16 @@ namespace AnimeNotification
             var config = LoadConfiguration();
             var services = BuildDi(config);
 
-            var animeService = services.GetService<AnimeService>();
+            var executor = services.GetService<ExecutorService>();
 
-            await animeService.CreateAsync();
+            try
+            {
+                await executor.StartExecutor();
+            }
+            catch
+            {
+
+            }
         }
     }
 }

@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnimeNotification.Repositories
 {
-    public class AnimeRepostory : IAnimeRepository
+    public class AnimeRepository : IAnimeRepository
     {
 
         private readonly AnimeNotificationDbContext _context;
         private readonly DbSet<Anime> _dbSet;
 
-        public AnimeRepostory(AnimeNotificationDbContext context)
+        public AnimeRepository(AnimeNotificationDbContext context)
         {
             _dbSet = context.Animes;
             _context = context;
@@ -39,7 +39,7 @@ namespace AnimeNotification.Repositories
             return await _dbSet.FirstOrDefaultAsync(a => a.Title == title);
         }
 
-        public async Task UpdateEposideAsync(string title, int episode)
+        public async Task<Anime> UpdateEposideAsync(string title, int episode)
         {
             var anime = await GetByNameAsync(title);
             if (anime is null)
@@ -47,6 +47,8 @@ namespace AnimeNotification.Repositories
 
             anime.Episode = episode;
             await _context.SaveChangesAsync();
+
+            return anime;
         }
     }
 }

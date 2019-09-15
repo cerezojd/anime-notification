@@ -7,6 +7,6 @@ namespace AnimeNotification.Repositories
     {
         Task<Anime> CreateAsync(string title, int eposide, string link, string source);
         Task<Anime> GetByNameAsync(string title);
-        Task UpdateEposideAsync(string title, int episode);
+        Task<Anime> UpdateEposideAsync(string title, int episode);
     }
 }
