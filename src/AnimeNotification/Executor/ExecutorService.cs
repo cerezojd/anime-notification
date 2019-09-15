@@ -1,5 +1,6 @@
 ﻿using AnimeNotification.Analyzers;
 using AnimeNotification.Entities;
+using AnimeNotification.Publisher.Abstractions;
 using AnimeNotification.Repositories;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,15 +11,18 @@ namespace AnimeNotification.Executor
     {
         private readonly IAnimeRepository _repository;
         private readonly IAnalyzeService _analyzer;
+        private readonly IPublisherService _publisher;
 
-        public ExecutorService(IAnimeRepository repository, IAnalyzeService analyzer)
+        public ExecutorService(IAnimeRepository repository, IAnalyzeService analyzer, IPublisherService publisher)
         {
             _repository = repository;
             _analyzer = analyzer;
+            _publisher = publisher;
         }
 
         public async Task StartExecutor()
         {
+
             var latestPublished = await _analyzer.GetLastestPublished();
 
             if (!latestPublished.Any())
@@ -27,9 +31,11 @@ namespace AnimeNotification.Executor
             foreach (var published in latestPublished)
             {
                 var anime = await _repository.GetByNameAsync(published.AnimeTitle);
+                 var isNewAnime = false;
 
                 if (anime is null)
                 {
+                    isNewAnime = true;
                     anime = await _repository.CreateAsync(published.AnimeTitle, published.AnimeEpisode, published.AnimeLink, published.Source);
                 }
                 else
@@ -37,8 +43,12 @@ namespace AnimeNotification.Executor
                     anime = await _repository.UpdateEposideAsync(published.AnimeTitle, published.AnimeEpisode);
                 }
 
-                // publish
-                    
+
+                if (isNewAnime == false && published.AnimeEpisode == anime.Episode)
+                    continue;
+
+
+                await _publisher.Publish($"Capítulo {anime.Episode} de {anime.Title} disponible.");
             }
         }
     }

@@ -1,6 +1,8 @@
 ﻿using AnimeNotification.Analyzers;
 using AnimeNotification.EntityFrameworkCore.Sqlite;
 using AnimeNotification.Executor;
+using AnimeNotification.Publisher.Abstractions;
+using AnimeNotification.Publisher.Telegram;
 using AnimeNotification.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -29,19 +31,22 @@ namespace AnimeNotification
 
             services
                 .AddSingleton(configurationRoot)
-                .AddOptions();
+                .AddOptions()
+                .Configure<TelegramPublisherConfiguration>(configurationRoot.GetSection("TelegramApi"));
 
             services.AddDbContext<AnimeNotificationDbContext>(opt =>
             {
                 opt.UseSqlite(configurationRoot["ConnectionString"]);
             });
 
+            services.AddHttpClient();
             services
                 .AddSingleton(configurationRoot)
                 .AddOptions();
 
             services.AddScoped<IAnalyzeService, AnimeFlvAnalyzerService>();
             services.AddScoped<IAnimeRepository, AnimeRepository>();
+            services.AddScoped<IPublisherService, TelegramPublisherService>();
             services.AddScoped<ExecutorService>();
 
             var serviceProvider = services.BuildServiceProvider();
@@ -55,14 +60,7 @@ namespace AnimeNotification
 
             var executor = services.GetService<ExecutorService>();
 
-            try
-            {
-                await executor.StartExecutor();
-            }
-            catch
-            {
-
-            }
+            await executor.StartExecutor();
         }
     }
 }
