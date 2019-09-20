@@ -4,6 +4,8 @@ using AnimeNotification.Executor;
 using AnimeNotification.Publisher.Abstractions;
 using AnimeNotification.Publisher.Telegram;
 using AnimeNotification.Repositories;
+using AnimeNotification.Services;
+using AnimeNotification.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,11 +42,7 @@ namespace AnimeNotification
             });
 
             services.AddHttpClient();
-
-            services.AddScoped<IAnalyzeService, AnimeFlvAnalyzerService>();
-            services.AddScoped<IAnimeRepository, AnimeRepository>();
-            services.AddScoped<IPublisherService, TelegramPublisherService>();
-            services.AddScoped<ExecutorService>();
+            services.ConfigureApplicationServices();
 
             var serviceProvider = services.BuildServiceProvider();
             return serviceProvider;
@@ -57,7 +55,14 @@ namespace AnimeNotification
 
             var executor = services.GetService<ExecutorService>();
 
-            await executor.StartExecutor();
+            try
+            {
+                await executor.StartExecutor();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }
