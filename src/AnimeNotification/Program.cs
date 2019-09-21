@@ -1,11 +1,7 @@
-﻿using AnimeNotification.Analyzers;
-using AnimeNotification.EntityFrameworkCore.Sqlite;
+﻿using AnimeNotification.EntityFrameworkCore.Sqlite;
 using AnimeNotification.Executor;
-using AnimeNotification.Publisher.Abstractions;
 using AnimeNotification.Publisher.Telegram;
-using AnimeNotification.Repositories;
 using AnimeNotification.Services;
-using AnimeNotification.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

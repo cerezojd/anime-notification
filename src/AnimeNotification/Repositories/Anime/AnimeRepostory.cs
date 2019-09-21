@@ -36,7 +36,8 @@ namespace AnimeNotification.Repositories
 
         public async Task<Anime> GetByNameAsync(string title)
         {
-            return await _dbSet.FirstOrDefaultAsync(a => a.Title == title);
+
+            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(a => a.Title == title);
         }
 
         public async Task<Anime> UpdateEposideAsync(string title, int episode)

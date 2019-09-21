@@ -22,19 +22,19 @@ namespace AnimeNotification.Analyzers
 
             foreach (var animeNode in episodeListNode)
             {
-                var animeTitleNode = animeNode.SelectSingleNode(".//a/strong[@class='Title']");
-                var animeEpisodeNode = animeNode.SelectSingleNode(".//a/span[@class='Capi']");
+                var titleNode = animeNode.SelectSingleNode(".//a/strong[@class='Title']");
+                var episodeNode = animeNode.SelectSingleNode(".//a/span[@class='Capi']");
 
-                if (animeTitleNode is null || animeEpisodeNode is null)
+                if (titleNode is null || episodeNode is null)
                     continue;
 
+                var link = animeNode.SelectSingleNode(".//a").GetAttributeValue("href", null);
+
                 result.Add(new AnalyzeResult {
-                    //  TODO: Improve parse anime data
-                    AnimeEpisode = int.Parse(animeEpisodeNode.InnerText.Replace("Episodio ", "")),
-                    AnimeTitle = animeTitleNode.InnerText,
+                    AnimeEpisode = int.Parse(episodeNode.InnerText.Replace("Episodio ", "")),
+                    AnimeTitle = titleNode.InnerText,
                     Source = Url,
-                    // TODO: Get anime url
-                    AnimeLink = Url
+                    AnimeLink = string.Concat(Url.Remove(Url.Length - 1), link)
                 });
             }
 

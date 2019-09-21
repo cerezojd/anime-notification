@@ -1,5 +1,4 @@
 ﻿using AnimeNotification.Analyzers;
-using AnimeNotification.Entities;
 using AnimeNotification.Publisher.Abstractions;
 using AnimeNotification.Repositories;
 using AnimeNotification.Sqlite;
@@ -27,43 +26,38 @@ namespace AnimeNotification.Executor
         {
             var latestPublished = await _analyzer.GetLastestPublished();
 
-            await _transactionService.Start();
-
             if (!latestPublished.Any())
                 return;
 
             foreach (var published in latestPublished)
             {
+                await _transactionService.Start();
 
                 var anime = await _repository.GetByNameAsync(published.AnimeTitle);
-                var isNewAnime = false;
 
                 if (anime is null)
-                {
-                    isNewAnime = true;
                     anime = await _repository.CreateAsync(published.AnimeTitle, published.AnimeEpisode, published.AnimeLink, published.Source);
-                }
                 else
-                {
                     await _repository.UpdateEposideAsync(published.AnimeTitle, published.AnimeEpisode);
-                }
 
-
-                if (isNewAnime == false && published.AnimeEpisode == anime.Episode)
+                if (anime != null && published.AnimeEpisode == anime.Episode)
+                {
+                    _transactionService.Commit();
                     continue;
+                }
 
                 try
                 {
-                    await _publisher.Publish($"Capítulo {published.AnimeEpisode} de {published.AnimeTitle} disponible.");
+                    await _publisher.Publish(published);
                 }
                 catch
                 {
                     _transactionService.Rollback();
                     throw;
                 }
-            }
 
-            _transactionService.Commit();
+                _transactionService.Commit();
+            }
         }
     }
 }

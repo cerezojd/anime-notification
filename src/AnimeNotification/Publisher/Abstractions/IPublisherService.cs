@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using AnimeNotification.Analyzers;
+using System.Threading.Tasks;
 
 namespace AnimeNotification.Publisher.Abstractions
 {
     public interface IPublisherService
     {
-        Task Publish(string message);
+        Task Publish(AnalyzeResult anime);
     }
 }
