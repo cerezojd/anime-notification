@@ -31,6 +31,7 @@ namespace AnimeNotification.Executor
 
             foreach (var published in latestPublished)
             {
+                // Use transaction is for testing them. You can avoid it.
                 await _transactionService.Start();
                 var anime = await _repository.GetByNameAsync(published.AnimeTitle);
 
