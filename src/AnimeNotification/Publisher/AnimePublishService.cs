@@ -24,9 +24,9 @@ namespace AnimeNotification.Publisher
             await _publishService.PublishAsync(message.ToString());
         }
 
-        public async Task PublishNewAsync(AnalyzeResult anime)
+        public async Task PublishNewAsync(AnalyzeResult anime, AnimeInfoResult animeInfo)
         {
-            var message = new StringBuilder($"Episodio *{anime.AnimeEpisode}* de *{anime.AnimeTitle}* disponible.");
+            var message = new StringBuilder($"Episodio *{anime.AnimeEpisode}* de *{anime.AnimeTitle}* disponible. {animeInfo.Description}, {string.Join(',', animeInfo.Genres)}");
 
             if (!string.IsNullOrWhiteSpace(anime.AnimeLink))
                 message.Append($" [Ver ahora]({anime.AnimeLink}");

@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace AnimeNotification.Analyzers
 {
@@ -39,6 +40,31 @@ namespace AnimeNotification.Analyzers
             }
 
             return Task.FromResult(result.ToArray());
+        }
+
+        public async Task<AnimeInfoResult> GetAnimeInfoAsync(string animeUrl)
+        {
+            var htmlAnimeWeb = new HtmlWeb();
+            var htmlAnimeDocument = await htmlAnimeWeb.LoadFromWebAsync(animeUrl);
+
+            var genreNodes = htmlAnimeDocument.DocumentNode.SelectNodes(".//a[contains(@href, 'genre')]");
+
+            var genres = new List<string>();
+            if (!(genreNodes is null))
+            {
+                foreach (var genreNode in genreNodes)
+                {
+                    genres.Add(HttpUtility.HtmlDecode(genreNode.InnerText));
+                }
+            }
+
+            var descriptionNode = htmlAnimeDocument.DocumentNode.SelectSingleNode(".//div[@class = 'Description']/p");
+
+            return new AnimeInfoResult
+            {
+                Description = descriptionNode.InnerText,
+                Genres = genres.ToArray()
+            };
         }
     }
 }

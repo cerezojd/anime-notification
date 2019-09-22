@@ -1,4 +1,5 @@
 ﻿using AnimeNotification.Analyzers;
+using AnimeNotification.Extensions;
 using AnimeNotification.Publisher;
 using AnimeNotification.Publisher.Abstractions;
 using AnimeNotification.Repositories;
@@ -48,9 +49,14 @@ namespace AnimeNotification.Executor
                 try
                 {
                     if (published.AnimeEpisode > 1)
-                       await _publisher.PublishEpisodeAsync(published);
+                    {
+                        await _publisher.PublishEpisodeAsync(published);
+                    }
                     else
-                       await _publisher.PublishNewAsync(published);
+                    {
+                        var animeInfo = await _analyzer.GetAnimeInfoAsync(published.AnimeLink.ToAnimeUrl());
+                        await _publisher.PublishNewAsync(published, animeInfo);
+                    }
                 }
                 catch
                 {
