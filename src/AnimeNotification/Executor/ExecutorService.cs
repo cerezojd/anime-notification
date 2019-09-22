@@ -32,11 +32,10 @@ namespace AnimeNotification.Executor
             foreach (var published in latestPublished)
             {
                 await _transactionService.Start();
-
                 var anime = await _repository.GetByNameAsync(published.AnimeTitle);
 
                 if (anime is null)
-                    anime = await _repository.CreateAsync(published.AnimeTitle, published.AnimeEpisode, published.AnimeLink, published.Source);
+                    await _repository.CreateAsync(published.AnimeTitle, published.AnimeEpisode, published.AnimeLink, published.Source);
                 else
                     await _repository.UpdateEposideAsync(published.AnimeTitle, published.AnimeEpisode);
 

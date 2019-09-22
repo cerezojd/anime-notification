@@ -42,7 +42,7 @@ namespace AnimeNotification.Repositories
 
         public async Task<Anime> UpdateEposideAsync(string title, int episode)
         {
-            var anime = await GetByNameAsync(title);
+            var anime = await _dbSet.FirstOrDefaultAsync(a => a.Title == title); ;
             if (anime is null)
                 throw new Exception("Anime not found");
 
