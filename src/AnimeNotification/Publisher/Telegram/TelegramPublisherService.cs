@@ -5,6 +5,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace AnimeNotification.Publisher.Telegram
 {
@@ -28,7 +29,7 @@ namespace AnimeNotification.Publisher.Telegram
 
             var client = _clientFactory.CreateClient(nameof(TelegramPublisherService));
 
-            var request = new Uri($"{_options.BaseUrl}/bot{_options.Token}/sendMessage?chat_id={_options.Channel}&parse_mode=Markdown&text={message}");
+            var request = new Uri($@"{_options.BaseUrl}/bot{_options.Token}/sendMessage?chat_id={_options.Channel}&parse_mode=Markdown&text={HttpUtility.UrlEncode(message.ToString())}");
             var res = await client.GetAsync(request);
 
             if (!res.IsSuccessStatusCode)
