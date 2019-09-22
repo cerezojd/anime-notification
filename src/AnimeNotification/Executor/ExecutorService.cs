@@ -1,4 +1,5 @@
 ﻿using AnimeNotification.Analyzers;
+using AnimeNotification.Publisher;
 using AnimeNotification.Publisher.Abstractions;
 using AnimeNotification.Repositories;
 using AnimeNotification.Sqlite;
@@ -11,10 +12,10 @@ namespace AnimeNotification.Executor
     {
         private readonly IAnimeRepository _repository;
         private readonly IAnalyzeService _analyzer;
-        private readonly IPublisherService _publisher;
+        private readonly AnimePublisherService _publisher;
         private readonly TransactionService _transactionService;
 
-        public ExecutorService(IAnimeRepository repository, IAnalyzeService analyzer, IPublisherService publisher, TransactionService transactionService)
+        public ExecutorService(IAnimeRepository repository, IAnalyzeService analyzer, AnimePublisherService publisher, TransactionService transactionService)
         {
             _repository = repository;
             _analyzer = analyzer;
@@ -31,24 +32,25 @@ namespace AnimeNotification.Executor
 
             foreach (var published in latestPublished)
             {
+                var anime = await _repository.GetByNameAsync(published.AnimeTitle);
+
+                if (anime != null && published.AnimeEpisode == anime.Episode)
+                    continue;
+
                 // Use transaction is for testing them. You can avoid it.
                 await _transactionService.Start();
-                var anime = await _repository.GetByNameAsync(published.AnimeTitle);
 
                 if (anime is null)
                     await _repository.CreateAsync(published.AnimeTitle, published.AnimeEpisode, published.AnimeLink, published.Source);
                 else
                     await _repository.UpdateEposideAsync(published.AnimeTitle, published.AnimeEpisode);
 
-                if (anime != null && published.AnimeEpisode == anime.Episode)
-                {
-                    _transactionService.Commit();
-                    continue;
-                }
-
                 try
                 {
-                    await _publisher.Publish(published);
+                    if (published.AnimeEpisode > 1)
+                       await _publisher.PublishEpisodeAsync(published);
+                    else
+                       await _publisher.PublishNewAsync(published);
                 }
                 catch
                 {

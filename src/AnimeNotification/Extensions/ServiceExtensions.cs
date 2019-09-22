@@ -1,5 +1,6 @@
 ﻿using AnimeNotification.Analyzers;
 using AnimeNotification.Executor;
+using AnimeNotification.Publisher;
 using AnimeNotification.Publisher.Abstractions;
 using AnimeNotification.Publisher.Telegram;
 using AnimeNotification.Repositories;
@@ -18,6 +19,7 @@ namespace AnimeNotification.Services
             services.AddScoped<IPublisherService, TelegramPublisherService>();
             services.AddScoped<ExecutorService>();
             services.AddTransient<TransactionService>();
+            services.AddSingleton<AnimePublisherService>();
         }
     }
 }

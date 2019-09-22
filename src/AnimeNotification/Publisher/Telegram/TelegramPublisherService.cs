@@ -3,7 +3,6 @@ using AnimeNotification.Publisher.Abstractions;
 using Microsoft.Extensions.Options;
 using System;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -20,16 +19,11 @@ namespace AnimeNotification.Publisher.Telegram
             _options = options.Value;
         }
 
-        public async Task Publish(AnalyzeResult anime)
+        public async Task PublishAsync(string anime)
         {
-            var message = new StringBuilder($"Episodio *{anime.AnimeEpisode}* de *{anime.AnimeTitle}* disponible.");
-
-            if (!string.IsNullOrWhiteSpace(anime.AnimeLink))
-                message.Append($" [Ver ahora]({anime.AnimeLink}");
-
             var client = _clientFactory.CreateClient(nameof(TelegramPublisherService));
 
-            var request = new Uri($@"{_options.BaseUrl}/bot{_options.Token}/sendMessage?chat_id={_options.Channel}&parse_mode=Markdown&text={HttpUtility.UrlEncode(message.ToString())}");
+            var request = new Uri($"{_options.BaseUrl}/bot{_options.Token}/sendMessage?chat_id={_options.Channel}&parse_mode=Markdown&text={HttpUtility.UrlEncode(anime)}");
             var res = await client.GetAsync(request);
 
             if (!res.IsSuccessStatusCode)
