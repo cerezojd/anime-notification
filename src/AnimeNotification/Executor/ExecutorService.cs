@@ -29,7 +29,7 @@ namespace AnimeNotification.Executor
             if (!latestPublished.Any())
                 return;
 
-            foreach (var published in latestPublished)
+            foreach (var published in latestPublished.Reverse())
             {
                 var anime = await _repository.GetByNameAsync(published.AnimeTitle);
 
