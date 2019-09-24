@@ -1,7 +1,5 @@
 ﻿using AnimeNotification.Analyzers;
-using AnimeNotification.Extensions;
 using AnimeNotification.Publisher;
-using AnimeNotification.Publisher.Abstractions;
 using AnimeNotification.Repositories;
 using AnimeNotification.Sqlite;
 using System.Linq;
