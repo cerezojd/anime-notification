@@ -18,7 +18,7 @@ namespace AnimeNotification.Publisher
 
         public async Task PublishEpisodeAsync(AnalyzeResult anime)
         {
-            var message = new StringBuilder($"Episodio *{anime.AnimeEpisode}* de *{anime.AnimeTitle}* disponible.");
+            var message = new StringBuilder($"*{anime.AnimeTitle}* episodio *{anime.AnimeEpisode}* disponible.");
 
             if (!string.IsNullOrWhiteSpace(anime.AnimeLink))
                 message.Append($" [Ver ahora]({anime.AnimeLink}");
