@@ -32,10 +32,10 @@ namespace AnimeNotification.Analyzers
                 var link = animeNode.SelectSingleNode(".//a").GetAttributeValue("href", null);
 
                 result.Add(new AnalyzeResult {
-                    AnimeEpisode = int.Parse(episodeNode.InnerText.Replace("Episodio ", "")),
-                    AnimeTitle = titleNode.InnerText,
-                    Source = Url,
-                    AnimeLink = string.Concat(Url.Remove(Url.Length - 1), link)
+                    AnimeEpisode = int.Parse(HttpUtility.HtmlDecode(episodeNode.InnerText.Replace("Episodio ", ""))),
+                    AnimeTitle = HttpUtility.HtmlDecode(titleNode.InnerText),
+                    Source = HttpUtility.HtmlDecode(Url),
+                    AnimeLink = HttpUtility.HtmlDecode(string.Concat(Url.Remove(Url.Length - 1), link))
                 });
             }
 
@@ -62,7 +62,7 @@ namespace AnimeNotification.Analyzers
 
             return new AnimeInfoResult
             {
-                Description = descriptionNode.InnerText,
+                Description = HttpUtility.HtmlDecode(descriptionNode.InnerText),
                 Genres = genres.ToArray()
             };
         }
