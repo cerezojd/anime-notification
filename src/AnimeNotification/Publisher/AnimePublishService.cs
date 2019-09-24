@@ -1,7 +1,9 @@
 ﻿using AnimeNotification.Analyzers;
 using AnimeNotification.Publisher.Abstractions;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace AnimeNotification.Publisher
 {
@@ -26,10 +28,25 @@ namespace AnimeNotification.Publisher
 
         public async Task PublishNewAsync(AnalyzeResult anime, AnimeInfoResult animeInfo)
         {
-            var message = new StringBuilder($"Episodio *{anime.AnimeEpisode}* de *{anime.AnimeTitle}* disponible. {animeInfo.Description}, {string.Join(',', animeInfo.Genres)}");
+            var message = new StringBuilder($"*{anime.AnimeTitle}* ha comenzado a emitirse.\n\n");
+
+            if (!string.IsNullOrWhiteSpace(animeInfo.Description))
+            {
+                if(animeInfo.Description.Length > 120)
+                    animeInfo.Description = string.Concat(animeInfo.Description.Remove(120), $"... [Leer más]({anime.GetAnimeProfileUrl()})");
+
+                message.Append($"{animeInfo.Description} \n\n");
+            }
+
 
             if (!string.IsNullOrWhiteSpace(anime.AnimeLink))
-                message.Append($" [Ver ahora]({anime.AnimeLink}");
+                message.Append($"[Ver capítulo]({anime.AnimeLink}) \n\n");
+
+            if (!(animeInfo.Genres is null) && animeInfo.Genres.Any())
+            {
+                var genres = string.Join(' ', animeInfo.Genres.Select(g => $"#{g.Replace(" ", "")}")).ToString();
+                message.Append(genres);
+            }
 
             await _publishService.PublishAsync(message.ToString());
         }

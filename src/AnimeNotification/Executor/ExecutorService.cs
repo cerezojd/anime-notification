@@ -54,7 +54,7 @@ namespace AnimeNotification.Executor
                     }
                     else
                     {
-                        var animeInfo = await _analyzer.GetAnimeInfoAsync(published.AnimeLink.ToAnimeUrl());
+                        var animeInfo = await _analyzer.GetAnimeInfoAsync(published.GetAnimeProfileUrl());
                         await _publisher.PublishNewAsync(published, animeInfo);
                     }
                 }
