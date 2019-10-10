@@ -33,10 +33,9 @@ namespace AnimeNotification.Executor
             {
                 var anime = await _repository.GetByNameAsync(published.AnimeTitle);
 
-                if (anime != null && published.AnimeEpisode == anime.Episode)
+                if (anime != null && published.AnimeEpisode <= anime.Episode)
                     continue;
 
-                // Use transaction is for testing them. You can avoid it.
                 await _transactionService.Start();
 
                 if (anime is null)
