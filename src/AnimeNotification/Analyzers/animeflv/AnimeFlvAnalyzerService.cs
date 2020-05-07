@@ -7,19 +7,19 @@ namespace AnimeNotification.Analyzers
 {
     public class AnimeFlvAnalyzerService : IAnalyzeService
     {
-        private const string Url = "https://animeflv.net/";
-        private readonly HtmlWeb _web = new HtmlWeb();
-        private readonly HtmlDocument _doc;
+        private const string BaseUrl = "https://animeflv.net/";
 
         public AnimeFlvAnalyzerService()
         {
-            _doc = _web.Load(Url);
         }
 
         public Task<AnalyzeResult[]> GetLastestPublished()
         {
+            var web = new HtmlWeb();
+            var doc = web.Load(BaseUrl);
+
             var result = new List<AnalyzeResult>();
-            var episodeListNode = _doc.DocumentNode.SelectNodes(".//ul[contains(@class, 'ListEpisodios')]/li");
+            var episodeListNode = doc.DocumentNode.SelectNodes(".//ul[contains(@class, 'ListEpisodios')]/li");
 
             foreach (var animeNode in episodeListNode)
             {
@@ -31,11 +31,12 @@ namespace AnimeNotification.Analyzers
 
                 var link = animeNode.SelectSingleNode(".//a").GetAttributeValue("href", null);
 
-                result.Add(new AnalyzeResult {
+                result.Add(new AnalyzeResult
+                {
                     AnimeEpisode = int.Parse(HttpUtility.HtmlDecode(episodeNode.InnerText.Replace("Episodio ", ""))),
                     AnimeTitle = HttpUtility.HtmlDecode(titleNode.InnerText),
-                    Source = HttpUtility.HtmlDecode(Url),
-                    AnimeLink = HttpUtility.HtmlDecode(string.Concat(Url.Remove(Url.Length - 1), link))
+                    Source = HttpUtility.HtmlDecode(BaseUrl),
+                    AnimeLink = HttpUtility.HtmlDecode(string.Concat(BaseUrl.Remove(BaseUrl.Length - 1), link))
                 });
             }
 
