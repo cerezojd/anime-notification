@@ -2,6 +2,8 @@
 using AnimeNotification.Publisher;
 using AnimeNotification.Repositories;
 using AnimeNotification.Sqlite;
+using Serilog;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,6 +27,7 @@ namespace AnimeNotification.Executor
         public async Task StartExecutor()
         {
             var latestPublished = await _analyzer.GetLastestPublished();
+            Log.Information($"Latest animes found: {latestPublished.Length}");
 
             if (!latestPublished.Any())
                 return;
@@ -48,15 +51,18 @@ namespace AnimeNotification.Executor
                     if (published.AnimeEpisode > 1)
                     {
                         await _publisher.PublishEpisodeAsync(published);
+                        Log.Information($"Publishing {published.AnimeTitle} episode {published.AnimeEpisode}");
                     }
                     else
                     {
                         var animeInfo = await _analyzer.GetAnimeInfoAsync(published.GetAnimeProfileUrl());
                         await _publisher.PublishNewAsync(published, animeInfo);
+                        Log.Information($"Publishing new anime: {published.AnimeTitle}");
                     }
                 }
                 catch
                 {
+                    Log.Error($"Error publishing: {anime.Title}");
                     _transactionService.Rollback();
                     throw;
                 }

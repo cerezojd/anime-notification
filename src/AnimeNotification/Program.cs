@@ -5,9 +5,11 @@ using AnimeNotification.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AnimeNotification
@@ -44,21 +46,41 @@ namespace AnimeNotification
             return serviceProvider;
         }
 
+        public static void ConfigureSerilog()
+        {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.File("logs\\anlogs.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+        }
+
         public async static Task Main(string[] args)
         {
             var config = LoadConfiguration();
             var services = BuildDi(config);
+            ConfigureSerilog();
 
             var executor = services.GetService<ExecutorService>();
 
-            try
+            Log.Information("Application started");
+            while (true)
             {
-                await executor.StartExecutor();
+                try
+                {
+                    Log.Information("Start new analysis");
+                    await executor.StartExecutor();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, ex.Message);
+                }
+
+                Log.Information("Waiting to start a new analysis...");
+                Thread.Sleep(600000);
             }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+
+
         }
     }
 }

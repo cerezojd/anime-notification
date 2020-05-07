@@ -19,7 +19,7 @@ namespace AnimeNotification.Services
             services.AddScoped<IPublisherService, TelegramPublisherService>();
             services.AddScoped<ExecutorService>();
             services.AddTransient<TransactionService>();
-            services.AddSingleton<AnimePublisherService>();
+            services.AddScoped<AnimePublisherService>();
         }
     }
 }
